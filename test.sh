@@ -48,7 +48,7 @@ runTests() {
 }
 
 runReport() {
-  if [ -f "coverage/test.info" ] && ! [ "$TRAVIS" ]; then
+  if [ -f "coverage/test.info" ] && ! [ "$TRAVIS" ] && ! [ "$CI" ]; then
     genhtml coverage/test.info -o coverage --no-function-coverage --prefix $(pwd)
 
     if [ "$(uname)" == "Darwin" ]; then

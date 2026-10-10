@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:movie/movie.dart';
+import 'package:movie/presentation/widgets/movie_card.dart';
+
+import '../../dummy_data/dummy_objects.dart';
+import '../../helpers/mocks.dart';
+import '../../helpers/pump_app.dart';
+
+void main() {
+  late MockMovieSearchBloc bloc;
+
+  setUp(() {
+    bloc = MockMovieSearchBloc();
+  });
+
+  Future<void> pumpPage(WidgetTester tester, MovieListState state) {
+    when(() => bloc.state).thenReturn(state);
+    return tester.pumpApp(
+      const MovieSearchPage(),
+      providers: [BlocProvider<MovieSearchBloc>.value(value: bloc)],
+    );
+  }
+
+  testWidgets('should show an empty result before searching', (tester) async {
+    await pumpPage(tester, const MovieListEmpty());
+
+    expect(find.text('Search Result'), findsOneWidget);
+    expect(find.byType(MovieCard), findsNothing);
+  });
+
+  testWidgets('should submit the query when search is submitted', (
+    tester,
+  ) async {
+    await pumpPage(tester, const MovieListEmpty());
+
+    await tester.enterText(find.byType(TextField), 'spiderman');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pump();
+
+    verify(() => bloc.add(const MovieSearchSubmitted('spiderman'))).called(1);
+  });
+
+  testWidgets('should display progress bar when loading', (tester) async {
+    await pumpPage(tester, const MovieListLoading());
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('should display search result when data is loaded', (
+    tester,
+  ) async {
+    await pumpPage(tester, MovieListHasData(testMovieList));
+
+    expect(find.byType(MovieCard), findsOneWidget);
+  });
+
+  testWidgets('should display message when error', (tester) async {
+    await pumpPage(tester, const MovieListError('Error message'));
+
+    expect(find.text('Error message'), findsOneWidget);
+  });
+}

@@ -1,0 +1,32 @@
+workflows:
+  ditonton-ci:
+    name: Ditonton CI
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+    scripts:
+      - name: Get dependencies
+        script: |
+          for module in core movie tv_series .; do
+            (cd "$module" && flutter pub get)
+          done
+      - name: Analyze
+        script: flutter analyze
+      - name: Run tests
+        script: |
+          for module in core movie tv_series .; do
+            (cd "$module" && flutter test --coverage)
+          done
+      - name: Build debug APK
+        script: flutter build apk --debug
+    artifacts:
+      - build/**/outputs/flutter-apk/*.apk
+      - '**/coverage/lcov.info'

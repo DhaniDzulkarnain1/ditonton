@@ -1,52 +1,64 @@
-# a199-flutter-expert-project
+# Ditonton
 
-Repository ini merupakan starter project submission kelas Flutter Expert Dicoding Indonesia.
+[![CI](https://github.com/DhaniDzulkarnain1/ditonton/actions/workflows/ci.yml/badge.svg)](https://github.com/DhaniDzulkarnain1/ditonton/actions/workflows/ci.yml)
 
----
+Aplikasi katalog film dan TV series berbasis Flutter yang mengambil data dari [The Movie Database (TMDB)](https://www.themoviedb.org/). Proyek ini merupakan submission akhir kelas **Menjadi Flutter Developer Expert** di Dicoding.
 
-## Tips Submission Awal
+## Fitur
 
-Pastikan untuk memeriksa kembali seluruh hasil testing pada submissionmu sebelum dikirimkan. Karena kriteria pada submission ini akan diperiksa setelah seluruh berkas testing berhasil dijalankan.
+- Daftar film: Now Playing, Popular, dan Top Rated.
+- Daftar TV series: On The Air, Popular, dan Top Rated.
+- Detail film dan TV series beserta rekomendasi.
+- Detail season dan episode pada TV series.
+- Pencarian film dan TV series.
+- Watchlist film dan TV series yang tersimpan di database lokal.
 
+## Arsitektur
 
-## Tips Submission Akhir
+Proyek menerapkan Clean Architecture dan dibagi menjadi beberapa modul:
 
-Jika kamu menerapkan modular pada project, Anda dapat memanfaatkan berkas `test.sh` pada repository ini. Berkas tersebut dapat mempermudah proses testing melalui *terminal* atau *command prompt*. Sebelumnya menjalankan berkas tersebut, ikuti beberapa langkah berikut:
-1. Install terlebih dahulu aplikasi sesuai dengan Operating System (OS) yang Anda gunakan.
-    - Bagi pengguna **Linux**, jalankan perintah berikut pada terminal.
-        ```
-        sudo apt-get update -qq -y
-        sudo apt-get install lcov -y
-        ```
-    
-    - Bagi pengguna **Mac**, jalankan perintah berikut pada terminal.
-        ```
-        brew install lcov
-        ```
-    - Bagi pengguna **Windows**, ikuti langkah berikut.
-        - Install [Chocolatey](https://chocolatey.org/install) pada komputermu.
-        - Setelah berhasil, install [lcov](https://community.chocolatey.org/packages/lcov) dengan menjalankan perintah berikut.
-            ```
-            choco install lcov
-            ```
-        - Kemudian cek **Environtment Variabel** pada kolom **System variabels** terdapat variabel GENTHTML dan LCOV_HOME. Jika tidak tersedia, Anda bisa menambahkan variabel baru dengan nilai seperti berikut.
-            | Variable | Value|
-            | ----------- | ----------- |
-            | GENTHTML | C:\ProgramData\chocolatey\lib\lcov\tools\bin\genhtml |
-            | LCOV_HOME | C:\ProgramData\chocolatey\lib\lcov\tools |
-        
-2. Untuk mempermudah proses verifikasi testing, jalankan perintah berikut.
-    ```
-    git init
-    ```
-3. Kemudian jalankan berkas `test.sh` dengan perintah berikut pada *terminal* atau *powershell*.
-    ```
-    test.sh
-    ```
-    atau
-    ```
-    ./test.sh
-    ```
-    Proses ini akan men-*generate* berkas `lcov.info` dan folder `coverage` terkait dengan laporan coverage.
-4. Tunggu proses testing selesai hingga muncul web terkait laporan coverage.
+| Modul | Isi |
+| --- | --- |
+| `core` | Style, konstanta, rute, failure, database helper, SSL pinning, dan widget bersama. |
+| `movie` | Layer data, domain, dan presentation untuk fitur film. |
+| `tv_series` | Layer data, domain, dan presentation untuk fitur TV series, season, dan episode. |
+| `lib` (root) | Entry point, dependency injection, routing, dan integrasi Firebase. |
 
+Teknologi utama:
+
+- **State management**: [flutter_bloc](https://pub.dev/packages/flutter_bloc).
+- **Dependency injection**: [get_it](https://pub.dev/packages/get_it).
+- **SSL pinning**: sertifikat `api.themoviedb.org` dipasang melalui `SecurityContext` di `core/lib/utils/ssl_pinning.dart`.
+- **Firebase**: Analytics untuk mencatat perpindahan halaman dan Crashlytics untuk laporan eror.
+- **Continuous Integration**: GitHub Actions menjalankan analyzer, seluruh pengujian, dan build APK pada setiap push. Konfigurasi Codemagic tersedia di `codemagic.yaml`.
+
+## Menjalankan Aplikasi
+
+Proyek memakai Flutter channel stable terbaru melalui [FVM](https://fvm.app/).
+
+```
+fvm install
+fvm flutter pub get
+fvm flutter run
+```
+
+## Pengujian
+
+Jalankan seluruh unit test dan widget test beserta laporan coverage:
+
+```
+./test.sh
+```
+
+Atau jalankan per modul:
+
+```
+cd movie
+fvm flutter test --coverage
+```
+
+Integration test membutuhkan emulator atau perangkat yang terhubung:
+
+```
+fvm flutter test integration_test
+```
