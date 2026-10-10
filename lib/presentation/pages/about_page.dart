@@ -43,6 +43,9 @@ class AboutPage extends StatelessWidget {
                       ),
                       if (onTestCrash != null)
                         TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.black87,
+                          ),
                           onPressed: onTestCrash,
                           child: const Text('Test Crashlytics'),
                         ),
